@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Даня приглашает 🌿</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #f9d29d 0%, #f8b88b 30%, #e8916a 60%, #c9674d 100%);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    position: relative;
+    padding: 20px;
+    text-align: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ▼▼▼ ПАДАЮЩИЕ ЛИСТЬЯ ▼▼▼ */
+  .leaf {
+    position: fixed;
+    top: -60px;
+    font-size: 28px;
+    animation: fall linear infinite;
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 5;
+    opacity: 0.85;
+    transition: transform 0.2s;
+  }
+  .leaf:hover { transform: scale(1.2); }
+  @keyframes fall {
+    0% { transform: translateY(-10vh) translateX(0) rotate(0deg); }
+    100% { transform: translateY(110vh) translateX(80px) rotate(540deg); }
+  }
+
+  /* ▼▼▼ ПАРК НА ЗАДНЕМ ПЛАНЕ ▼▼▼ */
+  .forest-bg {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60vh;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .forest-bg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ▼▼▼ ТУМАН ВНИЗУ ▼▼▼ */
+  .fog {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20vh;
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0.5) 100%);
+    pointer-events: none;
+    z-index: 2;
+    animation: fogMove 15s ease-in-out infinite alternate;
+  }
+  @keyframes fogMove { 0% { opacity: 0.5; } 100% { opacity: 0.9; } }
+
+  /* ▼▼▼ ВИДЖЕТ ПОГОДЫ И ВЕТРА ▼▼▼ */
+  .weather-widget {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    background: rgba(255, 248, 235, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 12px 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(120, 60, 20, 0.25);
+    color: #5a3a1a;
+    text-align: left;
+    min-width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .weather-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .weather-city {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #7a4a2a;
+  }
+  .weather-main {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .weather-temp {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #b0502a;
+  }
+  .weather-desc {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+  .weather-wind {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #7a4a2a;
+  }
+  .wind-icon { font-size: 1.1rem; }
+
+  h1 {
+    color: #fff;
+    font-size: clamp(1.1rem, 5vw, 2.2rem);
+    text-shadow: 2px 2px 14px rgba(120, 50, 20, 0.8), 0 0 20px rgba(0,0,0,0.3);
+    margin-bottom: 30px;
+    margin-top: 120px; 
+    z-index: 3;
+    max-width: 90%;
+    line-height: 1.4;
+    position: relative;
+    pointer-events: none;
+  }
+
+  .buttons { 
+    display: flex; 
+    gap: 20px; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 3; 
+    position: relative; 
+    height: 60px;
+  }
+
+  button {
+    padding: 14px 35px; 
+    font-size: 1.2rem; 
+    border: none; 
+    border-radius: 50px;
+    cursor: pointer; 
+    font-weight: bold; 
+    font-family: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  #yes {
+    background: linear-gradient(135deg, #e06b3a, #f0a04b);
+    color: white;
+    box-shadow: 0 8px 25px rgba(200, 90, 40, 0.55);
+  }
+  #yes:active { box-shadow: 0 5px 15px rgba(200, 90, 40, 0.75); }
+  
+  #no {
+    background: #fff8ee; 
+    color: #b0502a; 
+    transition: all 0.2s ease; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  }
+
+  /* ▼▼▼ ФИНАЛЬНЫЙ ЭКРАН ▼▼▼ */
+  .final-screen {
+    z-index: 4; 
+    animation: popIn 0.6s ease; 
+    position: relative;
+    max-width: 90%;
+    background: rgba(40, 20, 5, 0.5);
+    padding: 25px 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    margin-top: 10px;
+  }
+  .final-screen h1 { margin-bottom: 15px; margin-top: 0; pointer-events: auto; font-size: clamp(1.2rem, 5vw, 2rem); }
+  .final-screen p {
+    color: #fff; font-size: 1rem;
+    text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.7);
+    line-height: 1.6; margin-bottom: 20px;
+  }
+  .big-emoji { font-size: 3.5rem; margin-bottom: 10px; animation: heartbeat 1.2s ease infinite; }
+  @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* ▼▼▼ МИНИ-ИГРА: СЧЕТЧИК ЛИСТЬЕВ ▼▼▼ */
+  .game-ui {
+    position: fixed;
+    bottom: 80px; 
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    background: rgba(255, 248, 235, 0.95);
+    padding: 12px 24px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #b0502a;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    white-space: nowrap;
+  }
+  .game-ui.show { display: flex; animation: popIn 0.5s ease; }
+
+  /* ▼▼▼ МИЛЫЕ ФЕЙЕРВЕРКИ ▼▼▼ */
+  .firework {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10;
+    font-size: 1.5rem;
+  }
+
+  /* 📱 МОБИЛЬНАЯ АДАПТАЦИЯ */
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .weather-widget { padding: 10px 15px; min-width: 200px; top: 10px; }
+    .weather-temp { font-size: 2rem; }
+    .weather-city { font-size: 0.9rem; }
+    h1 { margin-top: 110px; margin-bottom: 20px; max-width: 95%; }
+    .buttons { flex-direction: column; height: auto; gap: 15px; width: 100%; }
+    button { width: 80%; max-width: 250px; padding: 12px 20px; font-size: 1.1rem; }
+    .final-screen { padding: 20px 15px; margin-top: 20px; }
+    .game-ui { bottom: 70px; font-size: 0.95rem; padding: 10px 18px; }
+    .forest-bg { height: 50vh; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ▼▼▼ ПАРК НА ЗАДНЕМ ПЛАНЕ ▼▼▼ -->
+  <div class="forest-bg">
+    <svg viewBox="0 0 1000 500" preserveAspectRatio="xMidYMax slice">
+      <ellipse cx="500" cy="450" rx="600" ry="100" fill="#b05a3a" opacity="0.3"/>
+      <path d="M 350,500 Q 400,400 480,300 Q 490,280 500,260 Q 510,280 520,300 Q 600,400 650,500 Z" fill="#e8cba5" opacity="0.8"/>
+      <path d="M 400,500 Q 430,400 490,300 Q 500,280 500,260 Q 500,280 510,300 Q 570,400 600,500 Z" fill="#d9b58c" opacity="0.6"/>
+      
+      <rect x="150" y="280" width="10" height="120" fill="#3a2818"/>
+      <circle cx="155" cy="250" r="50" fill="#c9674d" opacity="0.9"/>
+      <circle cx="130" cy="270" r="40" fill="#b05a3a" opacity="0.9"/>
+      <circle cx="180" cy="270" r="45" fill="#d97a52" opacity="0.9"/>
+      
+      <g fill="#3a2818">
+        <rect x="260" y="340" width="10" height="40" />
+        <polygon points="210,340 320,340 265,260" />
+        <polygon points="220,280 310,280 265,200" />
+        <polygon points="230,220 300,220 265,150" />
+      </g>
+
+      <rect x="700" y="300" width="12" height="150" fill="#3a2818"/>
+      <circle cx="706" cy="260" r="60" fill="#c9674d" opacity="0.85"/>
+      <circle cx="670" cy="280" r="50" fill="#b05a3a" opacity="0.85"/>
+      <circle cx="740" cy="280" r="55" fill="#d97a52" opacity="0.85"/>
+
+      <g fill="#3a2818">
+        <rect x="830" y="380" width="12" height="50" />
+        <polygon points="770,380 900,380 835,280" />
+        <polygon points="780,310 890,310 835,210" />
+        <polygon points="795,240 875,240 835,150" />
+      </g>
+
+      <g transform="translate(180, 360)">
+        <rect x="0" y="20" width="80" height="8" rx="2" fill="#4a2e1b"/>
+        <rect x="0" y="0" width="80" height="8" rx="2" fill="#4a2e1b"/>
+        <rect x="5" y="28" width="6" height="20" fill="#4a2e1b"/>
+        <rect x="69" y="28" width="6" height="20" fill="#4a2e1b"/>
+        <rect x="5" y="8" width="6" height="20" fill="#4a2e1b"/>
+        <rect x="69" y="8" width="6" height="20" fill="#4a2e1b"/>
+      </g>
+      <g transform="translate(650, 380)">
+        <rect x="0" y="20" width="100" height="10" rx="2" fill="#4a2e1b"/>
+        <rect x="0" y="0" width="100" height="10" rx="2" fill="#4a2e1b"/>
+        <rect x="5" y="30" width="8" height="25" fill="#4a2e1b"/>
+        <rect x="87" y="30" width="8" height="25" fill="#4a2e1b"/>
+        <rect x="5" y="10" width="8" height="25" fill="#4a2e1b"/>
+        <rect x="87" y="10" width="8" height="25" fill="#4a2e1b"/>
+      </g>
+
+      <g transform="translate(500, 280)">
+        <circle cx="-12" cy="-5" r="5" fill="#2b1a0e"/>
+        <path d="M -15,0 L -9,0 L -8,20 L -16,20 Z" fill="#2b1a0e"/>
+        <circle cx="4" cy="-7" r="5" fill="#2b1a0e"/>
+        <path d="M 1,-2 L 7,-2 L 9,20 L -1,20 Z" fill="#2b1a0e"/>
+        <rect x="20" y="10" width="12" height="6" rx="3" fill="#2b1a0e"/>
+        <circle cx="32" cy="10" r="4" fill="#2b1a0e"/>
+        <path d="M 20,12 Q 16,8 18,4" fill="none" stroke="#2b1a0e" stroke-width="2"/>
+        <rect x="22" y="16" width="2" height="6" fill="#2b1a0e"/>
+        <rect x="28" y="16" width="2" height="6" fill="#2b1a0e"/>
+        <path d="M 7,0 Q 15,5 20,12" fill="none" stroke="#2b1a0e" stroke-width="1.5"/>
+      </g>
+
+      <ellipse cx="-20" cy="480" rx="100" ry="80" fill="#c9674d" opacity="0.6"/>
+      <ellipse cx="1020" cy="480" rx="120" ry="90" fill="#c9674d" opacity="0.6"/>
+    </svg>
+  </div>
+
+  <div class="fog"></div>
+
+  <!-- ▼▼▼ ВИДЖЕТ ПОГОДЫ И ВЕТРА ▼▼▼ -->
+  <div class="weather-widget">
+    <div class="weather-top">
+      <div class="weather-city">🍂 Москва, вс</div>
+      <div class="weather-desc">облачно</div>
+    </div>
+    <div class="weather-main">
+      <div class="weather-temp">0…+5°C</div>
+    </div>
+    <div class="weather-wind">
+      <span class="wind-icon">💨</span>
+      <span>4 м/с, ЮЗ</span>
+    </div>
+  </div>
+
+  <h1 id="question">
+    Таня, а пойдёмте втроём — ты, я и Жужа —<br>
+    на прогулку по осеннему лесу? 🍂🐕<br>
+    <span style="font-size:0.7em; display:inline-block; margin-top:15px; opacity:0.95;">
+      Возьмём термос с горячим чаем ☕ и будем шуршать листьями 🍁
+    </span>
+  </h1>
+
+  <div class="buttons" id="buttons">
+    <button id="yes">Да! 💛</button>
+    <button id="no">Нет</button>
+  </div>
+
+  <!-- СЧЕТЧИК ИГРЫ -->
+  <div class="game-ui" id="gameUi">
+    <span>🧺 Листья:</span>
+    <span id="leafCount">0</span>
+    <span>/ 10</span>
+  </div>
+
+<script>
+  const noBtn    = document.getElementById('no');
+  const yesBtn   = document.getElementById('yes');
+  const question = document.getElementById('question');
+  const buttons  = document.getElementById('buttons');
+  const gameUi   = document.getElementById('gameUi');
+  const leafCountEl = document.getElementById('leafCount');
+
+  let yesScale = 1;
+  let isGameActive = false;
+  let collectedLeaves = 0;
+  const targetLeaves = 10;
+
+  const leafEmojis = ['🍁', '🍂', '🍃', '🌿', '🍁', '🍂'];
+
+  // ▼▼▼ АУДИО-ДВИЖОК ▼▼▼
+  let audioCtx = null;
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+
+  function playMildBark() {
+    try {
+      initAudio();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine'; 
+      osc.frequency.setValueAtTime(600, now);
+      osc.frequency.exponentialRampToValueAtTime(900, now + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(500, now + 0.2);
+      
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } catch (e) { console.log('Звук не поддерживается', e); }
+  }
+
+  function playRustle() {
+    try {
+      initAudio();
+      const duration = 0.3;
+      const bufferSize = audioCtx.sampleRate * duration;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.5;
+      }
+      
+      const source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 4000;
+      filter.Q.value = 1.5;
+      
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      
+      source.connect(filter); 
+      filter.connect(gain); 
+      gain.connect(audioCtx.destination);
+      
+      source.start();
+    } catch (e) { console.log('Звук не поддерживается', e); }
+  }
+
+  // ▼▼▼ ЛОГИКА КНОПКИ "НЕТ" (ТОЛЬКО УБЕГАЕТ) ▼▼▼
+  function moveNo() {
+    noBtn.style.position = 'fixed';
+    const padding = 20;
+    const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+    const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+    const topPos = padding + 100 + Math.random() * (maxY - 100);
+    
+    noBtn.style.left = Math.max(padding, Math.random() * maxX) + 'px';
+    noBtn.style.top  = Math.max(padding, topPos) + 'px';
+  }
+
+  noBtn.addEventListener('mouseover', () => {
+    playMildBark();
+    moveNo();
+    yesScale += 0.12;
+    yesBtn.style.transform = `scale(${yesScale})`;
+  });
+
+  noBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    playMildBark();
+    moveNo();
+    yesScale += 0.1;
+    yesBtn.style.transform = `scale(${yesScale})`;
+  });
+
+  // ▼▼▼ КЛИК "ДА" — НАЧАЛО ИГРЫ ▼▼▼
+  yesBtn.addEventListener('click', () => {
+    question.remove();
+    buttons.remove();
+
+    const final = document.createElement('div');
+    final.className = 'final-screen';
+    final.innerHTML = `
+      <div class="big-emoji">🍂🐕☕</div>
+      <h1>Ура! Даня прыгает от счастья! 🎉</h1>
+      <p>
+        Даня, Таня и Жужа идут в осенний лес! 🍁<br>
+        Чашка горячего чая уже ждёт ☕<br><br>
+        <span style="font-size:0.9em; opacity:0.9;">Пока мы идём, собери 10 листьев в корзинку!<br>Просто тапай по экрану 🍁</span>
+      </p>
+    `;
+    document.body.appendChild(final);
+
+    isGameActive = true;
+    gameUi.classList.add('show');
+
+    for (let i = 0; i < 5; i++) {
+      setTimeout(createFirework, i * 400);
+    }
+  });
+
+  // ▼▼▼ ИГРОВАЯ МЕХАНИКА (ТАП ПО ЭКРАНУ) ▼▼▼
+  document.body.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') return;
+
+    if (isGameActive && collectedLeaves < targetLeaves) {
+      playRustle();
+
+      collectedLeaves++;
+      leafCountEl.textContent = collectedLeaves;
+      
+      const popLeaf = document.createElement('div');
+      popLeaf.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+      popLeaf.style.position = 'fixed';
+      popLeaf.style.left = e.clientX + 'px';
+      popLeaf.style.top = e.clientY + 'px';
+      popLeaf.style.fontSize = '2rem';
+      popLeaf.style.pointerEvents = 'none';
+      popLeaf.style.zIndex = '100';
+      popLeaf.style.transform = 'translate(-50%, -50%)';
+      
+      popLeaf.animate([
+        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+        { transform: 'translate(-50%, 100px) scale(0.5)', opacity: 0 }
+      ], {
+        duration: 800,
+        easing: 'ease-out'
+      });
+      
+      document.body.appendChild(popLeaf);
+      setTimeout(() => popLeaf.remove(), 800);
+
+      if (collectedLeaves === targetLeaves) {
+        isGameActive = false;
+        setTimeout(() => {
+          gameUi.innerHTML = "🎉 Ого, целая охапка! <br>Теперь точно пора пить чай ☕";
+          gameUi.style.background = "rgba(255, 248, 235, 0.98)";
+          gameUi.style.border = "2px solid #e06b3a";
+          
+          for (let i = 0; i < 8; i++) {
+            setTimeout(createFirework, i * 200);
+          }
+        }, 500);
+      }
+    }
+  });
+
+  // ▼▼▼ ФОНОВЫЕ ЛИСТЬЯ ▼▼▼
+  function createLeaf() {
+    const leaf = document.createElement('div');
+    leaf.className = 'leaf';
+    leaf.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+    leaf.style.left = Math.random() * 100 + 'vw';
+    leaf.style.fontSize = (16 + Math.random() * 28) + 'px';
+    leaf.style.animationDuration = (4 + Math.random() * 5) + 's';
+    leaf.style.animationDelay = Math.random() * 2 + 's';
+    
+    leaf.addEventListener('click', (e) => {
+      e.stopPropagation(); 
+      if (isGameActive && collectedLeaves < targetLeaves) {
+        playRustle();
+        collectedLeaves++;
+        leafCountEl.textContent = collectedLeaves;
+
+        const popLeaf = document.createElement('div');
+        popLeaf.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+        popLeaf.style.position = 'fixed';
+        popLeaf.style.left = e.clientX + 'px';
+        popLeaf.style.top = e.clientY + 'px';
+        popLeaf.style.fontSize = '2rem';
+        popLeaf.style.pointerEvents = 'none';
+        popLeaf.style.zIndex = '100';
+        popLeaf.style.transform = 'translate(-50%, -50%)';
+        
+        popLeaf.animate([
+          { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+          { transform: 'translate(-50%, 100px) scale(0.5)', opacity: 0 }
+        ], {
+          duration: 800,
+          easing: 'ease-out'
+        });
+        
+        document.body.appendChild(popLeaf);
+        setTimeout(() => popLeaf.remove(), 800);
+
+        if (collectedLeaves === targetLeaves) {
+          isGameActive = false;
+          setTimeout(() => {
+            gameUi.innerHTML = "🎉 Ого, целая охапка! <br>Теперь точно пора пить чай ☕";
+            gameUi.style.background = "rgba(255, 248, 235, 0.98)";
+            gameUi.style.border = "2px solid #e06b3a";
+            for (let i = 0; i < 8; i++) {
+              setTimeout(createFirework, i * 200);
+            }
+          }, 500);
+        }
+      }
+      leaf.style.transform = 'scale(1.5) rotate(45deg)';
+      setTimeout(() => leaf.remove(), 200); 
+    });
+
+    document.body.appendChild(leaf);
+    setTimeout(() => leaf.remove(), 10000);
+  }
+
+  setInterval(() => {
+    if (document.querySelectorAll('.leaf').length < 25) createLeaf();
+  }, 600);
+
+  // ▼▼▼ ФЕЙЕРВЕРКИ ▼▼▼
+  function createFirework() {
+    const emojis = ['💖', '✨', '🎉', '💛', '🌟', '🍂', '❤️'];
+    const centerX = Math.random() * window.innerWidth;
+    const centerY = Math.random() * (window.innerHeight / 2) + 100;
+
+    for (let i = 0; i < 15; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'firework';
+      particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 50 + Math.random() * 150;
+      const tx = Math.cos(angle) * distance;
+      const ty = Math.sin(angle) * distance;
+
+      particle.style.left = centerX + 'px';
+      particle.style.top = centerY + 'px';
+      
+      particle.animate([
+        { transform: `translate(0, 0) scale(0.5)`, opacity: 1 },
+        { transform: `translate(${tx}px, ${ty}px) scale(1.2)`, opacity: 0 }
+      ], {
+        duration: 1000 + Math.random() * 500,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      });
+
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 1500);
+    }
+  }
+</script>
+</body>
+</html>
